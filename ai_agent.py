@@ -6,41 +6,44 @@ from dotenv import load_dotenv
 import sqlite3
 
 load_dotenv()
+
 HF_API_KEY = os.getenv("HF_API_KEY")
 DB_PATH = "instance/vocabulary.db"
 
+
 def generate_word_data(word):
-    """Hugging Face API üzerinden kelime verisi üretir."""
     if not HF_API_KEY:
         return {
             "word": word,
             "phonetic": "/demo/",
             "part_of_speech": "unknown",
-            "meaning": "Demo mode: HF_API_KEY missing",
+            "meaning": "HF_API_KEY missing",
             "synonyms": "",
             "antonyms": "",
             "collocations": "",
             "example_sentence": "",
             "translation": "",
             "source_name": "Demo",
-            "source_url": "https://example.com"
+            "source_url": "https://huggingface.co",
+            "added_at": datetime.now().isoformat(),
+            "last_reviewed": None
         }
 
     prompt = f"""
-You are an English vocabulary assistant.
+Return ONLY valid JSON for this English word: "{word}".
 
-Generate vocabulary data for the word "{word}".
-Return ONLY JSON with keys:
-word, phonetic, part_of_speech, meaning, synonyms, antonyms, collocations, example_sentence, translation, source_name, source_url.
+Use exactly these keys:
+word, phonetic, part_of_speech, meaning, synonyms, antonyms, collocations, example_sentence, translation, source_name, source_url
 
-- meaning in Chinese
-- translation in Chinese
-- example_sentence natural English
-- synonyms comma-separated
-- antonyms comma-separated
-- collocations comma-separated
-- source_name: Hugging Face AI
-- source_url: https://huggingface.co
+Rules:
+- meaning must be in Chinese
+- translation must be in Chinese
+- example_sentence must be natural English
+- synonyms must be comma-separated English words
+- antonyms must be comma-separated English words
+- collocations must be comma-separated English phrases
+- source_name must be "Hugging Face AI"
+- source_url must be "https://huggingface.co"
 """
 
     try:
@@ -51,33 +54,63 @@ word, phonetic, part_of_speech, meaning, synonyms, antonyms, collocations, examp
                 "Content-Type": "application/json"
             },
             json={
-                "model": "moonshotai/Kimi-K2-Instruct-0905",
+                "model": "Qwen/Qwen3-32B",
                 "messages": [
-                    {"role": "system", "content": "You are a vocabulary assistant. Return JSON only."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are a vocabulary assistant. Return only valid JSON. No markdown."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
                 ],
-                "temperature": 0.3,
-                "max_tokens": 500
+                "temperature": 0.2,
+                "max_tokens": 600
             },
-            timeout=40
+            timeout=60
         )
 
         result = response.json()
+
+        if "error" in result:
+            raise Exception(result["error"])
+
+        if "choices" not in result:
+            raise Exception(f"Unexpected HF response: {result}")
+
         content = result["choices"][0]["message"]["content"]
         content = content.replace("```json", "").replace("```", "").strip()
+
+        start = content.find("{")
+        end = content.rfind("}")
+        if start != -1 and end != -1:
+            content = content[start:end + 1]
+
         data = json.loads(content)
-        data["word"] = word
-        data["added_at"] = datetime.now().isoformat()
-        data["last_reviewed"] = None
-        return data
+
+        return {
+            "word": data.get("word", word),
+            "phonetic": data.get("phonetic", ""),
+            "part_of_speech": data.get("part_of_speech", ""),
+            "meaning": data.get("meaning", ""),
+            "synonyms": data.get("synonyms", ""),
+            "antonyms": data.get("antonyms", ""),
+            "collocations": data.get("collocations", ""),
+            "example_sentence": data.get("example_sentence", ""),
+            "translation": data.get("translation", ""),
+            "source_name": data.get("source_name", "Hugging Face AI"),
+            "source_url": data.get("source_url", "https://huggingface.co"),
+            "added_at": datetime.now().isoformat(),
+            "last_reviewed": None
+        }
 
     except Exception as e:
-        # API başarısız olursa demo veri
         return {
             "word": word,
             "phonetic": "/error/",
             "part_of_speech": "unknown",
-            "meaning": f"AI request failed: {e}",
+            "meaning": f"AI request failed: {str(e)}",
             "synonyms": "",
             "antonyms": "",
             "collocations": "",
@@ -89,10 +122,11 @@ word, phonetic, part_of_speech, meaning, synonyms, antonyms, collocations, examp
             "last_reviewed": None
         }
 
+
 def add_word_to_db(user_id, data):
-    """Verilen kelimeyi SQLite DB'ye ekler."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
         INSERT INTO words
         (user_id, word, phonetic, part_of_speech, meaning, synonyms, antonyms, collocations,
@@ -114,44 +148,54 @@ def add_word_to_db(user_id, data):
         data.get("added_at"),
         data.get("last_reviewed")
     ))
+
     conn.commit()
     conn.close()
 
+
 def review_random_word(user_id):
-    """Rastgele bir kelime seçer ve last_reviewed tarihini günceller."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute(
         "SELECT * FROM words WHERE user_id = ? ORDER BY RANDOM() LIMIT 1",
         (user_id,)
     )
+
     word = cursor.fetchone()
+
     if word:
         cursor.execute(
             "UPDATE words SET last_reviewed=? WHERE id=?",
             (datetime.now().isoformat(), word[0])
         )
         conn.commit()
+
     conn.close()
     return word
 
+
 def query_word(user_id, word):
-    """DB'den kelimeyi getirir."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute(
         "SELECT * FROM words WHERE user_id=? AND word LIKE ? ORDER BY id DESC LIMIT 1",
         (user_id, f"%{word}%")
     )
+
     result = cursor.fetchone()
     conn.close()
+
     return result
 
+
 def generate_quiz(user_id):
-    """Rastgele bir kelime seçip quiz için döndürür."""
     word = review_random_word(user_id)
+
     if not word:
         return None
+
     return {
         "word": word[2],
         "meaning": word[5]
