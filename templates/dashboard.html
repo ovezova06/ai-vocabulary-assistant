@@ -1,0 +1,467 @@
+<!DOCTYPE html><html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AI Vocabulary Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            color: #e6e6e6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border-bottom: 2px solid rgba(124, 200, 94, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .topbar-left h1 {
+            font-size: 28px;
+            color: #7cc85e;
+            margin-bottom: 5px;
+        }
+
+        .topbar-left p {
+            color: #999;
+            font-size: 14px;
+        }
+
+        .topbar-right {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .review-btn {
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+        }
+
+        .review-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 200, 94, 0.3);
+        }
+
+        .logout-btn {
+            background: rgba(255, 67, 67, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 67, 67, 0.3);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 67, 67, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 40px;
+        }
+
+        .search-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(124, 200, 94, 0.2);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
+        .search-section form {
+            display: flex;
+            gap: 10px;
+        }
+
+        .search-section input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid rgba(124, 200, 94, 0.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .search-section input:focus {
+            outline: none;
+            border-color: #7cc85e;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .search-section input::placeholder {
+            color: #666;
+        }
+
+        .search-section button {
+            padding: 12px 25px;
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .search-section button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(124, 200, 94, 0.3);
+        }
+
+        .ai-section {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(124, 200, 94, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 35px;
+        }
+
+        .ai-section h2 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .ai-section p {
+            color: #999;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .ai-section form {
+            display: flex;
+            gap: 12px;
+        }
+
+        .ai-section input {
+            flex: 1;
+            padding: 13px 16px;
+            border: 1px solid rgba(124, 200, 94, 0.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .ai-section input:focus {
+            outline: none;
+            border-color: #7cc85e;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .ai-section button {
+            padding: 13px 28px;
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+
+        .ai-section button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 200, 94, 0.3);
+        }
+
+        .vocab-section h2 {
+            font-size: 22px;
+            color: #fff;
+            margin-bottom: 20px;
+        }
+
+        .vocab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+        }
+
+        .vocab-card {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(124, 200, 94, 0.15);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .vocab-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7cc85e 0%, #6ab84a 100%);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+            transform-origin: left;
+        }
+
+        .vocab-card:hover {
+            transform: translateY(-8px);
+            background: rgba(124, 200, 94, 0.12);
+            border-color: rgba(124, 200, 94, 0.4);
+            box-shadow: 0 12px 28px rgba(124, 200, 94, 0.15);
+        }
+
+        .vocab-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .vocab-card h3 {
+            font-size: 28px;
+            color: #7cc85e;
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .vocab-card .phonetic {
+            color: #999;
+            font-size: 13px;
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+
+        .vocab-card-field {
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .vocab-card-field strong {
+            color: #7cc85e;
+            font-weight: 600;
+        }
+
+        .vocab-card-field span {
+            color: #ddd;
+        }
+
+        .vocab-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(124, 200, 94, 0.1);
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .edit-btn {
+            background: rgba(124, 200, 94, 0.2);
+            color: #7cc85e;
+            border: 1px solid rgba(124, 200, 94, 0.4);
+        }
+
+        .edit-btn:hover {
+            background: rgba(124, 200, 94, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background: rgba(255, 67, 67, 0.1);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 67, 67, 0.3);
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 67, 67, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 15px 20px;
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .topbar-left h1 {
+                font-size: 22px;
+            }
+
+            .topbar-right {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .ai-section form {
+                flex-direction: column;
+            }
+
+            .search-section form {
+                flex-direction: column;
+            }
+
+            .vocab-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <div class="topbar-left">
+            <h1>📚 AI Vocabulary Assistant</h1>
+            <p>Welcome, <strong>{{ username }}</strong> • Learn English words with an AI Agent</p>
+        </div>
+ <div class="topbar-right">
+    <a href="/review" class="topbar-btn review-btn">🔄 Review</a>
+    <a href="/history" class="topbar-btn review-btn">📚 History</a>
+    <a href="/statistics" class="topbar-btn review-btn">📊 Statistics</a>
+    <a href="/quiz" class="topbar-btn review-btn">📝 Quiz</a>
+    <a href="/logout" class="topbar-btn logout-btn">🚪 Logout</a>
+</div>
+    </div>
+
+    <div class="container">
+        <!-- Search Section -->
+        <div class="search-section">
+            <form method="GET" action="/dashboard">
+                <input type="text" name="search" value="{{ search }}" placeholder="🔍 Search words by name...">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+
+        <!-- AI Add Word Section -->
+        <div class="ai-section">
+            <h2>🤖 Add Word with AI Agent</h2>
+            <p>Type one English word. The agent will generate meaning, phonetic symbol, example sentence and translation.</p>
+            <form method="POST" action="/ai-add-word">
+                <input type="text" name="word" placeholder="Example: teacher, environment, abandon" required>
+                <button type="submit">Generate With AI</button>
+            </form>
+        </div>
+
+        <!-- Vocabulary Cards Section -->
+        <div class="vocab-section">
+            <h2>📖 Your Vocabulary</h2>
+            {% if words %}
+                <div class="vocab-grid">
+                    {% for word in words %}
+                    <div class="vocab-card">
+                         <div class="word-title-row">
+        <h3>{{ word[2] }}</h3>
+        <button
+            type="button"
+            class="voice-btn"
+            onclick="speakWord('{{ word[2] }}')">
+            🔊
+        </button>
+    </div>
+
+                        <div class="phonetic">{{ word[3] }}</div>
+                        
+                        <div class="vocab-card-field">
+                            <strong>Part of Speech:</strong> <span>{{ word[4] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Meaning:</strong> <span>{{ word[5] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Synonyms:</strong> <span>{{ word[6] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Antonyms:</strong> <span>{{ word[7] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Collocations:</strong> <span>{{ word[8] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Example:</strong> <span>{{ word[9] }}</span>
+                        </div>
+                        <div class="vocab-card-field">
+                            <strong>Translation:</strong> <span>{{ word[10] }}</span>
+                        </div>
+                       <div class="vocab-card-field">
+    <strong>Source:</strong>
+    <a href="{{ word[12] }}" target="_blank" class="source-link">
+        {{ word[11] }}
+    </a>
+</div>
+
+                        <div class="vocab-card-actions">
+                            <a href="{{ word[12] }}" target="_blank" class="action-btn edit-btn">🔗 Open Source</a>
+                            <a href="/delete-word/{{ word[0] }}" class="action-btn delete-btn">🗑️ Delete</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <p>No words in your vocabulary yet.</p>
+                    <p>Add your first word using the AI Agent above! 👆</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <script>
+function speakWord(word) {
+    const speech = new SpeechSynthesisUtterance(word);
+    speech.lang = "en-US";
+    speech.rate = 0.85;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
+}
+</script>
+</body>
+</html>

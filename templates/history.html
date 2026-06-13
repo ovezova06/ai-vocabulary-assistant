@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">📚 Learning History</h1>
+            <p class="dashboard-subtitle">Review all your vocabulary learning activities.</p>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="/dashboard" class="review-btn">⬅ Back to Dashboard</a>
+            <a href="/statistics" class="review-btn">📊 Statistics</a>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>🕘 Activity Records</h2>
+
+        <div class="stats-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Action</th>
+                        <th>Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in history_items %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                        <td>{{ item[2] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

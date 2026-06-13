@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vocabulary Quiz</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+<div class="quiz-page">
+    <div class="quiz-header">
+        <div>
+            <h1>📝 Vocabulary Quiz</h1>
+            <p>Answer 10 vocabulary questions and see your final score.</p>
+        </div>
+        <a href="/dashboard" class="review-btn">⬅ Back to Dashboard</a>
+    </div>
+
+    {% if error %}
+        <div class="quiz-card">
+            <h2>{{ error }}</h2>
+            <p>Add more words before starting the quiz.</p>
+        </div>
+    {% else %}
+
+    <div class="quiz-card">
+        <div class="quiz-progress">
+            <span id="question-counter">Question 1 / {{ questions|length }}</span>
+            <span id="score-counter">Score: 0</span>
+        </div>
+
+        <div class="progress-track">
+            <div id="progress-bar"></div>
+        </div>
+
+        <p class="quiz-label">Word</p>
+        <h2 id="quiz-word"></h2>
+        <div class="phonetic-row">
+    <p id="quiz-phonetic" class="quiz-phonetic"></p>
+
+    <button type="button" class="voice-btn" onclick="speakCurrentQuizWord()">
+        🔊 Listen
+    </button>
+</div>
+
+        <h3>Choose the correct meaning:</h3>
+
+        <div id="quiz-options" class="quiz-options"></div>
+
+        <div id="feedback-box" class="feedback-box"></div>
+
+<button id="next-btn"
+        class="next-btn"
+        onclick="nextQuestion()"
+        disabled>
+    Next Question ➜
+</button>
+    </div>
+
+    <div id="final-result" class="quiz-card result-card" style="display:none;">
+        <h2>🏁 Quiz Completed</h2>
+        <div id="final-score"></div>
+        <div id="motivation-message"></div>
+
+        <div class="result-actions">
+            <a href="/quiz" class="review-btn">🔄 Try Again</a>
+            <a href="/dashboard" class="review-btn">⬅ Dashboard</a>
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+
+<script>
+const questions = {{ questions | tojson }};
+let currentIndex = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let answered = false;
+function speakCurrentQuizWord() {
+    const word = questions[currentIndex].word;
+
+    const speech = new SpeechSynthesisUtterance(word);
+
+    speech.lang = "en-US";
+    speech.rate = 0.85;
+
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(speech);
+}
+
+function loadQuestion() {
+    answered = false;
+
+    const question = questions[currentIndex];
+
+    document.getElementById("question-counter").innerText =
+        `Question ${currentIndex + 1} / ${questions.length}`;
+
+    document.getElementById("score-counter").innerText =
+        `Correct: ${correctCount} | Wrong: ${wrongCount}`;
+
+    document.getElementById("progress-bar").style.width =
+        `${((currentIndex) / questions.length) * 100}%`;
+
+    document.getElementById("quiz-word").innerText = question.word;
+    document.getElementById("quiz-phonetic").innerText = question.phonetic || "";
+
+    const optionsBox = document.getElementById("quiz-options");
+    optionsBox.innerHTML = "";
+
+    question.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = `${String.fromCharCode(65 + index)}. ${option}`;
+        btn.onclick = () => checkAnswer(option, btn);
+        optionsBox.appendChild(btn);
+    });
+
+    document.getElementById("feedback-box").innerHTML = "";
+    document.getElementById("next-btn").disabled = true;
+
+    if (currentIndex === questions.length - 1) {
+        document.getElementById("next-btn").innerText = "Finish Quiz 🏁";
+    } else {
+        document.getElementById("next-btn").innerText = "Next Question ➜";
+    }
+}
+
+function checkAnswer(selected, button) {
+    if (answered) return;
+    answered = true;
+
+    const question = questions[currentIndex];
+    const buttons = document.querySelectorAll("#quiz-options button");
+
+    buttons.forEach(btn => {
+        btn.disabled = true;
+
+        if (btn.innerText.includes(question.correct)) {
+            btn.classList.add("correct-answer");
+        }
+    });
+
+    if (selected === question.correct) {
+        correctCount++;
+        button.classList.add("correct-answer");
+        document.getElementById("feedback-box").innerHTML =
+            `<p class="correct-text">✅ Correct!</p>
+             <p><strong>Example:</strong> ${question.example || ""}</p>
+             <p><strong>Translation:</strong> ${question.translation || ""}</p>`;
+    } else {
+        wrongCount++;
+        button.classList.add("wrong-answer");
+        document.getElementById("feedback-box").innerHTML =
+            `<p class="wrong-text">❌ Wrong.</p>
+             <p><strong>Correct Answer:</strong> ${question.correct}</p>
+             <p><strong>Example:</strong> ${question.example || ""}</p>
+             <p><strong>Translation:</strong> ${question.translation || ""}</p>`;
+    }
+
+    document.getElementById("score-counter").innerText =
+        `Correct: ${correctCount} | Wrong: ${wrongCount}`;
+
+    document.getElementById("next-btn").disabled = false;
+}
+
+function nextQuestion() {
+    if (currentIndex < questions.length - 1) {
+        currentIndex++;
+        loadQuestion();
+    } else {
+        showFinalResult();
+    }
+}
+
+function showFinalResult() {
+    document.querySelector(".quiz-card").style.display = "none";
+
+    const resultBox = document.getElementById("final-result");
+    resultBox.style.display = "block";
+
+    const score = Math.round((correctCount / questions.length) * 100);
+
+    document.getElementById("final-score").innerHTML =
+        `<h1>${score}/100</h1>
+         <p>Correct: ${correctCount}</p>
+         <p>Wrong: ${wrongCount}</p>`;
+
+    let message = "";
+
+    if (score >= 90) {
+        message = "🌟 Excellent! Your vocabulary level is very strong.";
+    } else if (score >= 70) {
+        message = "👏 Good job! You are improving well. Keep practicing.";
+    } else if (score >= 50) {
+        message = "💪 Not bad, but you should review more words.";
+    } else {
+        message = "📚 You need more practice. Review your vocabulary and try again.";
+    }
+
+    document.getElementById("motivation-message").innerText = message;
+
+    document.getElementById("progress-bar").style.width = "100%";
+}
+
+if (questions.length > 0) {
+    loadQuestion();
+}
+</script>
+
+</body>
+</html>

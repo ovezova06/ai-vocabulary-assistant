@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: ai-vocabulary-assistant
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=True
+      - SECRET_KEY=dev-secret-key-change-this
+    volumes:
+      - .:/app
+      - ./instance:/app/instance
+    command: flask run --host=0.0.0.0
+
+volumes:
+  instance:

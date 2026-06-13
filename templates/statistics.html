@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learning Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="dashboard-body">
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header">
+        <div>
+            <h1 class="dashboard-title">📊 Learning Statistics</h1>
+            <p class="dashboard-subtitle">Track your vocabulary learning progress.</p>
+        </div>
+
+        <div class="dashboard-actions">
+            <a href="/dashboard" class="review-btn">⬅ Back to Dashboard</a>
+            <a href="/history" class="review-btn">📚 History</a>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stats-card">
+            <h2>{{ total_words }}</h2>
+            <p>Total Words</p>
+        </div>
+
+        <div class="stats-card">
+            <h2>{{ total_added }}</h2>
+            <p>Words Added</p>
+        </div>
+
+        <div class="stats-card">
+            <h2>{{ total_reviews }}</h2>
+            <p>Total Reviews</p>
+        </div>
+    </div>
+
+    <div class="stats-section">
+        <h2>🏆 Most Reviewed Words</h2>
+
+        <div class="stats-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word</th>
+                        <th>Review Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in top_reviewed %}
+                    <tr>
+                        <td>{{ item[0] }}</td>
+                        <td>{{ item[1] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review - AI Vocabulary Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a1a 100%);
+            color: #e6e6e6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .review-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .review-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .review-header h1 {
+            font-size: 42px;
+            color: #7cc85e;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .review-header p {
+            color: #999;
+            font-size: 16px;
+        }
+
+        .word-card {
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid rgba(124, 200, 94, 0.3);
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 8px 32px rgba(124, 200, 94, 0.1);
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .word-main {
+            display: flex;
+            align-items: baseline;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+
+        .word-text h2 {
+            font-size: 48px;
+            color: #7cc85e;
+            font-weight: 700;
+        }
+
+        .word-item {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(124, 200, 94, 0.1);
+        }
+
+        .word-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .word-item strong {
+            color: #7cc85e;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .word-item span {
+            color: #e6e6e6;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px dashed rgba(124, 200, 94, 0.3);
+            border-radius: 16px;
+            padding: 60px 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .empty-state p {
+            color: #999;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state-emoji {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.3s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(124, 200, 94, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: #7cc85e;
+            border: 1px solid rgba(124, 200, 94, 0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(124, 200, 94, 0.15);
+            transform: translateY(-3px);
+        }
+
+        @media (max-width: 600px) {
+            .review-container {
+                padding: 20px;
+            }
+
+            .review-header h1 {
+                font-size: 32px;
+            }
+
+            .word-card {
+                padding: 25px;
+            }
+
+            .word-text h2 {
+                font-size: 36px;
+            }
+
+            .word-item strong {
+                font-size: 12px;
+            }
+
+            .word-item span {
+                font-size: 14px;
+            }
+
+            .btn {
+                padding: 12px 24px;
+                font-size: 14px;
+            }
+
+            .action-buttons {
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="review-container">
+        <div class="review-header">
+            <h1>📖 Vocabulary Review</h1>
+            <p>Study one word at a time and master English vocabulary</p>
+        </div>
+
+        {% if word %}
+            <div class="word-card">
+                <div class="word-main">
+                    <div class="word-text">
+                        <h2>{{ word[2] }}</h2>
+                    </div>
+                </div>
+                
+                <div class="word-item">
+                    <strong>📝 Meaning</strong>
+                    <span>{{ word[5] }}</span>
+                </div>
+
+                <div class="word-item">
+                    <strong>💡 Example</strong>
+                    <span>{{ word[9] }}</span>
+                </div>
+
+                <div class="word-item">
+                    <strong>🌐 Translation</strong>
+                    <span>{{ word[10] }}</span>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/review" class="btn btn-primary">🔄 Next Word</a>
+                <a href="/dashboard" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-emoji">📚</div>
+                <p>No words to review yet.</p>
+                <p style="color: #666; font-size: 14px; margin-bottom: 30px;">Add some words to your vocabulary first!</p>
+                <a href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AI Vocabulary Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .login-container {
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        .login-image {
+            flex: 1;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23228B22;stop-opacity:1" /><stop offset="100%" style="stop-color:%23000000;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23grad)" width="1000" height="1000"/><path d="M100 500 Q150 300 200 400 T300 500 Q350 350 400 450 T500 500 Q550 250 600 400 T700 500 Q750 300 800 450 T900 500" stroke="%23228B22" stroke-width="3" fill="none" opacity="0.6"/><path d="M80 600 Q120 450 160 520 T240 600 Q280 480 320 560 T400 600 Q440 420 480 520 T560 600 Q600 450 640 540 T720 600 Q760 470 800 560 T880 600" stroke="%2332CD32" stroke-width="2" fill="none" opacity="0.5"/></svg>') center/cover;
+            background-color: #0d5c0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .login-image-text {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #7cc85e;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+
+        .login-form-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-form-box {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 50px 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(124, 200, 94, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-form-box h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .login-form-box p {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(124, 200, 94, 0.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7cc85e;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(124, 200, 94, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            color: #ccc;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .forgot-password {
+            color: #7cc85e;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .forgot-password:hover {
+            color: #9ad37d;
+            text-decoration: underline;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 200, 94, 0.4);
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .signup-link a {
+            color: #7cc85e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .signup-link a:hover {
+            color: #9ad37d;
+        }
+
+        .error-message {
+            background: rgba(255, 67, 67, 0.1);
+            border: 1px solid rgba(255, 67, 67, 0.3);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .login-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .login-image {
+                height: 300px;
+                padding: 40px 20px;
+                text-align: center;
+            }
+
+            .login-image-text {
+                font-size: 32px;
+            }
+
+            .login-form-container {
+                padding: 30px 20px;
+            }
+
+            .login-form-box {
+                padding: 30px 25px;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <div class="login-container">
+        <div class="login-image">
+            <div class="login-image-text">🌿 Learn English<br/>Smarter</div>
+        </div>
+
+        <div class="login-form-container">
+            <div class="login-form-box">
+                <h1>SIGN IN</h1>
+                <p>Welcome back to your learning journey</p>
+                
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="/login">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" name="password" placeholder="Enter your password" required>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="showPassword">
+                            Show password
+                        </label>
+
+                        <label>
+                            <input type="checkbox" id="remember">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <div style="text-align:right; margin-bottom:15px;">
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="login-button">SIGN IN</button>
+                </form>
+
+                <div class="signup-link">
+                    Don't have an account? <a href="/register">Sign up here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const showPassword = document.getElementById("showPassword");
+        const loginPassword = document.getElementById("loginPassword");
+
+        showPassword.addEventListener("change", function () {
+            if (this.checked) {
+                loginPassword.type = "text";
+            } else {
+                loginPassword.type = "password";
+            }
+        });
+    </script>
+</body>
+</html>

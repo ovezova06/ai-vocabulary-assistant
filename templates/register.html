@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - AI Vocabulary Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .register-container {
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+        }
+
+        .register-image {
+            flex: 1;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23228B22;stop-opacity:1" /><stop offset="100%" style="stop-color:%23000000;stop-opacity:1" /></linearGradient></defs><rect fill="url(%23grad)" width="1000" height="1000"/><path d="M100 500 Q150 300 200 400 T300 500 Q350 350 400 450 T500 500 Q550 250 600 400 T700 500 Q750 300 800 450 T900 500" stroke="%23228B22" stroke-width="3" fill="none" opacity="0.6"/><path d="M80 600 Q120 450 160 520 T240 600 Q280 480 320 560 T400 600 Q440 420 480 520 T560 600 Q600 450 640 540 T720 600 Q760 470 800 560 T880 600" stroke="%2332CD32" stroke-width="2" fill="none" opacity="0.5"/></svg>') center/cover;
+            background-color: #0d5c0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+        }
+
+        .register-image-text {
+            text-align: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: #7cc85e;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+
+        .register-form-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .register-form-box {
+            width: 100%;
+            max-width: 400px;
+            background: rgba(20, 20, 20, 0.95);
+            padding: 50px 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(124, 200, 94, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            margin: auto;
+        }
+
+        .register-form-box h1 {
+            text-align: center;
+            color: #ffffff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .register-form-box p {
+            text-align: center;
+            color: #999;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid rgba(124, 200, 94, 0.5);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 14px;
+            transition: 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #7cc85e;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(124, 200, 94, 0.2);
+        }
+
+        .form-group input::placeholder {
+            color: #666;
+        }
+
+        .register-button {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #7cc85e 0%, #6ab84a 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 5px;
+        }
+
+        .register-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(124, 200, 94, 0.4);
+        }
+
+        .register-button:active {
+            transform: translateY(0);
+        }
+
+        .signin-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .signin-link a {
+            color: #7cc85e;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .signin-link a:hover {
+            color: #9ad37d;
+        }
+
+        .error-message {
+            background: rgba(255, 67, 67, 0.1);
+            border: 1px solid rgba(255, 67, 67, 0.3);
+            color: #ff6b6b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .register-container {
+                flex-direction: column;
+                height: auto;
+            }
+
+            .register-image {
+                height: 300px;
+                padding: 40px 20px;
+                text-align: center;
+            }
+
+            .register-image-text {
+                font-size: 32px;
+            }
+
+            .register-form-container {
+                padding: 30px 20px;
+            }
+
+            .register-form-box {
+                padding: 30px 25px;
+            }
+        }
+    </style>
+</head>
+<body class="register-body">
+    <div class="register-container">
+        <div class="register-image">
+            <div class="register-image-text">🌿 Start Your<br/>Learning Journey</div>
+        </div>
+        <div class="register-form-container">
+            <div class="register-form-box">
+                <h1>SIGN UP</h1>
+                <p>Create your account to begin learning</p>
+                
+                {% if error %}
+                    <div class="error-message">{{ error }}</div>
+                {% endif %}
+
+                <form method="POST" action="/register">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="password" name="password" placeholder="Create a password" required>
+                            <span id="togglePassword" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;color:#7cc85e;">👁</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <div style="position: relative;">
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                            <span id="toggleConfirmPassword" style="position:absolute;right:15px;top:50%;transform:translateY(-50%);cursor:pointer;color:#7cc85e;">👁</span>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="register-button">SIGN UP</button>
+                </form>
+
+                <div class="signin-link">
+                    Already have an account? <a href="/login">Sign in here</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordField = document.getElementById("password");
+            const confirmField = document.getElementById("confirm_password");
+            const passwordToggle = document.getElementById("togglePassword");
+            const confirmToggle = document.getElementById("toggleConfirmPassword");
+
+            if (passwordToggle) {
+                passwordToggle.addEventListener("click", function () {
+                    passwordField.type = passwordField.type === "password" ? "text" : "password";
+                });
+            }
+
+            if (confirmToggle) {
+                confirmToggle.addEventListener("click", function () {
+                    confirmField.type = confirmField.type === "password" ? "text" : "password";
+                });
+            }
+        });
+    </script>
+</body>
+</html>
